@@ -27,7 +27,7 @@ class ApplyVGMap(Operator, ImportHelper):
     filter_glob: StringProperty(
         default="*.vgmap",
         options={"HIDDEN"},
-    )
+    ) # type: ignore
 
     # commit: BoolProperty(
     #        name="Commit to current mesh",
@@ -39,25 +39,25 @@ class ApplyVGMap(Operator, ImportHelper):
         name="Rename existing vertex groups",
         description="Rename existing vertex groups to match the vgmap file",
         default=True,
-    )
+    ) # type: ignore
 
     cleanup: BoolProperty(
         name="Remove non-listed vertex groups",
         description="Remove any existing vertex groups that are not listed in the vgmap file",
         default=False,
-    )
+    ) # type: ignore
 
     reverse: BoolProperty(
         name="Swap from & to",
         description="Switch the order of the vertex group map - if this mesh is the 'to' and you want to use the bones in the 'from'",
         default=False,
-    )
+    ) # type: ignore
 
     suffix: StringProperty(
         name="Suffix",
         description="Suffix to add to the vertex buffer filename when exporting, for bulk exports of a single mesh with multiple distinct vertex group maps",
         default="",
-    )
+    ) # type: ignore
 
     def invoke(self, context, event):
         self.suffix = ""
@@ -84,7 +84,7 @@ class UpdateVGMap(Operator):
         description="If used vertex groups are 0,1,2,3,etc specify 1. If they are 0,3,6,9,12,etc specify 3",
         default=1,
         min=1,
-    )
+    ) # type: ignore
 
     def invoke(self, context, event):
         wm = context.window_manager
@@ -111,13 +111,13 @@ class Import3DMigotoPose(Operator, ImportHelper, IOOBJOrientationHelper):
     filter_glob: StringProperty(
         default="*.txt",
         options={"HIDDEN"},
-    )
+    ) # type: ignore
 
     limit_bones_to_vertex_groups: BoolProperty(
         name="Limit Bones to Vertex Groups",
         description="Limits the maximum number of bones imported to the number of vertex groups of the active object",
         default=True,
-    )
+    ) # type: ignore
 
     pose_cb_off: bpy.props.IntVectorProperty(
         name="Bone CB range",
@@ -125,14 +125,14 @@ class Import3DMigotoPose(Operator, ImportHelper, IOOBJOrientationHelper):
         default=[0, 0],
         size=2,
         min=0,
-    )
+    ) # type: ignore
 
     pose_cb_step: bpy.props.IntProperty(
         name="Vertex group step",
         description="If used vertex groups are 0,1,2,3,etc specify 1. If they are 0,3,6,9,12,etc specify 3",
         default=1,
         min=1,
-    )
+    ) # type: ignore
 
     def execute(self, context):
         try:
@@ -185,41 +185,41 @@ class Preferences(AddonPreferences):
     # Addon updater preferences.
 
     auto_check_update: BoolProperty(
-        name="Auto-check for Update",
-        description="If enabled, auto-check for updates using an interval",
+        name="自动检查更新",
+        description="如果启用，则使用间隔自动检查更新",
         default=False,
-    )
+    ) # type: ignore
 
     updater_interval_months: IntProperty(
-        name="Months",
-        description="Number of months between checking for updates",
+        name="月数",
+        description="检查更新的间隔月数",
         default=0,
         min=0,
-    )
+    ) # type: ignore
 
     updater_interval_days: IntProperty(
-        name="Days",
-        description="Number of days between checking for updates",
+        name="天数",
+        description="检查更新的间隔天数",
         default=7,
         min=0,
         max=31,
-    )
+    ) # type: ignore
 
     updater_interval_hours: IntProperty(
-        name="Hours",
-        description="Number of hours between checking for updates",
+        name="小时",
+        description="检查更新的间隔小时",
         default=0,
         min=0,
         max=23,
-    )
+    ) # type: ignore
 
     updater_interval_minutes: IntProperty(
-        name="Minutes",
-        description="Number of minutes between checking for updates",
+        name="分钟",
+        description="检查更新的间隔分钟",
         default=0,
         min=0,
         max=59,
-    )
+    ) # type: ignore
 
     def draw(self, context):
         layout = self.layout

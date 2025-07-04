@@ -13,11 +13,11 @@ vertex_color_layer_channels = 4
 
 
 class GameEnum(str, Enum):
-    HonkaiImpact3rd = "Honkai Impact 3rd"
-    GenshinImpact = "Genshin Impact"
-    HonkaiStarRail = "Honkai Star Rail"
-    ZenlessZoneZero = "Zenless Zone Zero"
-    HonkaiImpactPart2 = "Honkai Impact 3rd Part 2"
+    GenshinImpact = "原神"
+    HonkaiStarRail = "星铁"
+    ZenlessZoneZero = "绝区零"
+    HonkaiImpact3rd = "崩坏3"
+    HonkaiImpactPart2 = "崩坏3第二部"
 
 
 game_enum = [None] + [

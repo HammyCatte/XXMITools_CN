@@ -238,118 +238,118 @@ class XXMIProperties(PropertyGroup):
     """Properties for XXMITools"""
 
     destination_path: StringProperty(
-        name="Output Folder",
-        description="Output Folder:",
+        name="导出文件夹",
+        description="导出mod文件的路径",
         default="",
         maxlen=1024,
-    )
+    ) # type: ignore
 
     dump_path: StringProperty(
-        name="Dump Folder",
-        description="Dump Folder:",
+        name="导入文件夹",
+        description="导入dump文件的路径",
         default="",
         maxlen=1024,
-    )
+    ) # type: ignore
     filter_glob: StringProperty(
         default="*.vb*",
         options={"HIDDEN"},
-    )
+    ) # type: ignore
     use_custom_template: BoolProperty(
-        name="Use custom template",
-        description="Use a custom template file for the mod. If unchecked, the default template will be used",
+        name="使用自定义模板",
+        description="为模组使用自定义模板文件。如果未勾选，则将使用默认模板",
         default=False,
-    )
+    ) # type: ignore
     template_path: StringProperty(
-        name="Template Path",
-        description="Path to the template file.",
+        name="模板路径",
+        description="模板文件的路径",
         maxlen=1024,
-    )
+    ) # type: ignore
 
     ignore_hidden: BoolProperty(
-        name="Ignore hidden objects",
-        description="Does not use objects in the Blender window that are hidden while exporting mods",
+        name="忽略隐藏的对象",
+        description="导出模型时不使用 Blender 窗口中隐藏的对象",
         default=True,
-    )
+    ) # type: ignore
 
     only_selected: BoolProperty(
-        name="Only export selected",
-        description="Uses only the selected objects when deciding which meshes to export",
+        name="仅导出选中对象",
+        description="在决定导出哪些网格时仅使用选中的对象",
         default=False,
-    )
+    ) # type: ignore
 
     copy_textures: BoolProperty(
-        name="Mod textures",
-        description="ENABLED: Writes to the INI file and copy missing texture files to the export folder.\n"
-        + "DISABLED: The INI file will not contain entries that mod the textures. i.e. Mod uses vanilla textures.",
+        name="修改贴图",
+        description="启用：将贴图修改写入ini文件，并将缺失的贴图文件复制到导出文件夹\n"
+        + "禁用：ini文件将不包含贴图修改。即，Mod使用原始贴图",
         default=True,
-    )
+    ) # type: ignore
 
     no_ramps: BoolProperty(
-        name="Ignore shadow ramps/metal maps/diffuse guide",
-        description="Skips exporting shadow ramps, metal maps and diffuse guides",
+        name="忽略阴影渐变/金属度/漫反射参考图",
+        description="跳过导出阴影渐变、金属度贴图和漫反射参考图",
         default=True,
-    )
+    ) # type: ignore
 
     ignore_duplicate_textures: BoolProperty(
-        name="Ignore duplicated textures",
-        description="Ignore new textures with the same hash as already copied ones",
+        name="忽略重复的贴图",
+        description="忽略与已复制贴图具有相同哈希值的新贴图",
         default=False,
-    )
+    ) # type: ignore
 
     credit: StringProperty(
-        name="Credit",
-        description="Name that pops up on screen when mod is loaded. If left blank, will result in no pop up",
+        name="署名",
+        description="加载模块时屏幕上弹出的名称。如果留空，则不会弹出",
         default="",
-    )
+    ) # type: ignore
 
     outline_optimization: BoolProperty(
-        name="Outline Optimization",
-        description="Recalculate outlines data to optimize outline shape for the game. Somewhat slow. Recommended for final export.",
+        name="轮廓优化",
+        description="重新计算轮廓数据以优化游戏的轮廓形状。速度略慢。建议用于最终导出",
         default=False,
-    )
+    ) # type: ignore
     outline_rounding_precision: IntProperty(
-        name="Outline decimal rounding precision",
-        description="Higher values merge farther away vertices into a single outline vertex. Lower values produce more accurate outlines, but may result in split edges",
+        name="轮廓小数舍入精度",
+        description="较高的值会将较远的顶点合并为单个轮廓顶点。较低的值会产生更精确的轮廓，但可能会导致边缘撕裂",
         default=4,
         min=1,
         max=10,
-    )
+    ) # type: ignore
     game: EnumProperty(
-        name="Game to mod",
-        description="Select the game you are modding to optimize the mod for that game",
+        name="修改的游戏",
+        description="选择您正在修改的游戏以优化该游戏的mod",
         items=game_enum,
         default=None,
-    )
+    ) # type: ignore
     apply_modifiers_and_shapekeys: BoolProperty(
-        name="Apply modifiers and shapekeys",
-        description="Applies shapekeys and modifiers before exporting",
+        name="应用修改器和形态键",
+        description="导出前应用形态键和修改器",
         default=True,
-    )
+    ) # type: ignore
     normalize_weights: BoolProperty(
-        name="Normalize weights to format",
-        description="Limits weights to match export format then normalizes them.",
+        name="归一化权重",
+        description="限制权重以匹配导出格式，然后对其进行标准化",
         default=True,
-    )
+    ) # type: ignore
     export_shapekeys: BoolProperty(
-        name="Export shape keys",
-        description="Exports marked shape keys for the selected object. Also generates the necessary sections in ini file",
+        name="导出形态键",
+        description="为选中的对象导出标记的形态键，同时在ini文件中生成必要的部分",
         default=False,
-    )
+    ) # type: ignore
     batch_pattern: StringProperty(
-        name="Batch pattern",
-        description="Pattern to name export folders. Example: name_###",
+        name="批量模式",
+        description="用于命名导出文件夹的模式。示例：name_###",
         default="",
-    )
+    ) # type: ignore
     write_buffers: BoolProperty(
-        name="Write buffers",
-        description="Writes the vertex and index buffers to disk. Disabling this won't refresh the buffers in the mod folder, useful for debugging.",
+        name="写入缓冲区",
+        description="将ib和buf文件写入磁盘。禁用此功能将不会刷新mod文件夹中的buf文件，适合用于mod调试",
         default=True,
-    )
+    ) # type: ignore
     write_ini: BoolProperty(
-        name="Write ini",
-        description="Writes the ini file to disk. Disabling this won't refresh the ini file in the mod folder, useful for debugging.",
+        name="写入ini",
+        description="将ini文件写入磁盘。禁用此功能将不会刷新mod文件夹中的ini文件，适合用于mod调试",
         default=True,
-    )
+    ) # type: ignore
 
 
 class Export3DMigoto(Operator, ExportHelper):
@@ -362,7 +362,7 @@ class Export3DMigoto(Operator, ExportHelper):
     filter_glob: StringProperty(
         default="*.vb*",
         options={"HIDDEN"},
-    )
+    ) # type: ignore
 
     def invoke(self, context, event):
         return ExportHelper.invoke(self, context, event)
@@ -397,12 +397,12 @@ class Export3DMigotoXXMI(Operator, ExportHelper):
     filter_glob: StringProperty(
         default="*.vb*",
         options={"HIDDEN"},
-    )
+    ) # type: ignore
     xxmi: PointerProperty(
         type=XXMIProperties,
         name="XXMI Properties",
         description="Properties for XXMI export",
-    )
+    ) # type: ignore
 
     def draw(self, context):
         xxmi: XXMIProperties = self.xxmi
@@ -469,57 +469,57 @@ class Export3DMigotoXXMI(Operator, ExportHelper):
 
 
 class DestinationSelector(Operator, ExportHelper):
-    """Export single mod based on current frame"""
+    """选择mod文件的导出文件夹"""
 
     bl_idname = "destination.selector"
-    bl_label = "Destination"
+    bl_label = "选择导出文件夹"
     filename_ext = "."
     use_filter_folder = True
     filter_glob: StringProperty(
         default=".",
         options={"HIDDEN"},
-    )
+    ) # type: ignore
 
     def execute(self, context):
         userpath = Path(self.properties.filepath)
         if not userpath.is_dir():
             userpath = userpath.parent
         context.scene.xxmi.destination_path = str(userpath)
-        bpy.ops.ed.undo_push(message="XXMI Tools: destination selected")
+        bpy.ops.ed.undo_push(message="XXMI Tools: 已选择导出文件夹")
         return {"FINISHED"}
 
 
 class DumpSelector(Operator, ExportHelper):
-    """Export single mod based on current frame"""
+    """选择dump文件的导入文件夹"""
 
     bl_idname = "dump.selector"
-    bl_label = "Dump folder selector"
+    bl_label = "选择导入文件夹"
     filename_ext = "."
     use_filter_folder = True
     filter_glob: StringProperty(
         default=".",
         options={"HIDDEN"},
-    )
+    ) # type: ignore
 
     def execute(self, context):
         userpath = Path(self.properties.filepath)
         self.properties.filepath = str(userpath.parent)
         context.scene.xxmi.dump_path = str(userpath.parent)
-        bpy.ops.ed.undo_push(message="XXMI Tools: dump path selected")
+        bpy.ops.ed.undo_push(message="XXMI Tools: 已选择导入文件夹")
         return {"FINISHED"}
 
 
 class TemplateSelector(Operator, ExportHelper):
-    """Export single mod based on current frame"""
+    """选择模板文件"""
 
     bl_idname = "template.selector"
-    bl_label = "Tempalte file selector"
+    bl_label = "选择模板文件"
     filename_ext = ".j2"
     use_filter_folder = True
     filter_glob: StringProperty(
         default="*.j2",
         options={"HIDDEN"},
-    )
+    ) # type: ignore
 
     def execute(self, context):
         xxmi: XXMIProperties = context.scene.xxmi
@@ -527,13 +527,13 @@ class TemplateSelector(Operator, ExportHelper):
             xxmi.template_path = ""
             self.report(
                 {"ERROR"},
-                "Please select a valid game before chosing a template files.",
+                "在选择模板文件之前，请选择您修改的游戏。",
             )
             return {"CANCELLED"}
 
         template_path: Path = Path(self.properties.filepath)
         if template_path.is_dir():
-            self.report({"ERROR"}, "Template path must be a file, not a folder")
+            self.report({"ERROR"}, "模板路径必须是文件，而不是文件夹")
             return {"CANCELLED"}
 
         if not template_path.exists():
@@ -548,7 +548,7 @@ class TemplateSelector(Operator, ExportHelper):
             )
 
         xxmi.template_path = self.properties.filepath
-        bpy.ops.ed.undo_push(message="XXMI Tools: template path selected")
+        bpy.ops.ed.undo_push(message="XXMI Tools: 已选择模板文件")
         return {"FINISHED"}
 
 
@@ -556,8 +556,8 @@ class ExportAdvancedOperator(Operator):
     """Export operation base class"""
 
     bl_idname = "xxmi.exportadvanced"
-    bl_label = "Export Mod"
-    bl_description = "Export mod"
+    bl_label = "导出"
+    bl_description = "导出mod"
     bl_options = {"REGISTER"}
     operations = []
 
@@ -570,7 +570,7 @@ class ExportAdvancedOperator(Operator):
             if xxmi.game == "":
                 self.report(
                     {"ERROR"},
-                    "Please select a valid game before continuing.",
+                    "请选择修改的游戏后再继续。",
                 )
                 return {"CANCELLED"}
             mod_exporter: ModExporter = ModExporter(
@@ -604,8 +604,8 @@ class ExportAdvancedBatchedOperator(Operator):
     """Export operation base class"""
 
     bl_idname = "xxmi.exportadvancedbatched"
-    bl_label = "Batch export"
-    bl_description = "Exports 1 mod per frame of blender timeline as a single mod. Folder names follow the pattern specified in the batch pattern"
+    bl_label = "批量导出"
+    bl_description = "将Blender时间轴的每帧导出为单个mod，文件夹名称遵循批量模式中指定的格式"
     bl_options = {"REGISTER"}
     operations = []
 
@@ -616,8 +616,8 @@ class ExportAdvancedBatchedOperator(Operator):
         return context.window_manager.invoke_confirm(
             operator=self,
             event=event,
-            message=f"Exporting {scene.frame_end + 1 - scene.frame_start} copies of the mod. This may take a while. Continue?",
-            title="Batch export",
+            message=f"正在批量导出 {scene.frame_end + 1 - scene.frame_start} 个mod，这可能需要一些时间。是否继续？",
+            title="批量导出",
             icon="WARNING",
             confirm_text="Continue",
         )

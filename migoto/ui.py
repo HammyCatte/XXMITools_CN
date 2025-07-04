@@ -237,7 +237,7 @@ class XXMISidebarOptionsPanelBase(object):
 
 
 class XXMI_PT_SidePanelExportSettings(XXMISidebarOptionsPanelBase, Panel):
-    bl_label = "Export Settings"
+    bl_label = "导出设置"
     bl_options = {"DEFAULT_CLOSED"}
     bl_order = 0
 
@@ -298,7 +298,7 @@ class XXMI_PT_SidePanelBatchExport(XXMISidebarOptionsPanelBase, Panel):
         col2 = split.column()
         if xxmi.write_buffers or xxmi.write_ini or xxmi.copy_textures:
             col1.prop(xxmi, "batch_pattern")
-            col2.operator("xxmi.exportadvancedbatched", text="Start Batch export")
+            col2.operator("xxmi.exportadvancedbatched", text="批量导出")
 
 
 class XXMI_PT_SidePanelExport(XXMISidebarOptionsPanelBase, Panel):
@@ -314,13 +314,13 @@ class XXMI_PT_SidePanelExport(XXMISidebarOptionsPanelBase, Panel):
         if not xxmi.write_buffers and not xxmi.write_ini and not xxmi.copy_textures:
             row.label(text="Nothing to export", icon="ERROR")
         else:
-            row.operator("xxmi.exportadvanced", text="Export Mod")
+            row.operator("xxmi.exportadvanced", text="导出")
 
 
 class UpdaterPanel(Panel):
     """Update Panel"""
 
-    bl_label = "Updater"
+    bl_label = "自动更新"
     bl_idname = "XXMI_PT_UpdaterPanel"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"

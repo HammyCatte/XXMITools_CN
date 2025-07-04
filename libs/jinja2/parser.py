@@ -104,24 +104,24 @@ class Parser:
             currently_looking = None
 
         if name is None:
-            message = ["Unexpected end of template."]
+            message = ["模板意外终止。"]
         else:
-            message = [f"Encountered unknown tag {name!r}."]
+            message = [f"遇到未知标签 {name!r}."]
 
         if currently_looking:
             if name is not None and name in expected:
                 message.append(
-                    "You probably made a nesting mistake. Jinja is expecting this tag,"
-                    f" but currently looking for {currently_looking}."
+                    "你可能犯了一个嵌套错误。Jinja 期望的是这个标签，"
+                    f" 但目前正在寻找 {currently_looking}."
                 )
             else:
                 message.append(
-                    f"Jinja was looking for the following tags: {currently_looking}."
+                    f"Jinja 正在寻找以下标签: {currently_looking}."
                 )
 
         if self._tag_stack:
             message.append(
-                "The innermost block that needs to be closed is"
+                "需要关闭的最内层块是"
                 f" {self._tag_stack[-1]!r}."
             )
 

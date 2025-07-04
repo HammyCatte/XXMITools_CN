@@ -1055,7 +1055,7 @@ class Environment:
 
         if not names:
             raise TemplatesNotFound(
-                message="Tried to select from an empty list of templates."
+                message="模板列表为空，无法选择。"
             )
 
         for name in names:

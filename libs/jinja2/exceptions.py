@@ -79,7 +79,7 @@ class TemplatesNotFound(TemplateNotFound):
                     parts.append(name)
 
             parts_str = ", ".join(map(str, parts))
-            message = f"none of the templates given were found: {parts_str}"
+            message = f"未找到任何给定的模板: {parts_str}"
 
         super().__init__(names[-1] if names else None, message)
         self.templates = list(names)

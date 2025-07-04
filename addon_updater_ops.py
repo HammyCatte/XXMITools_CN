@@ -144,7 +144,7 @@ class AddonUpdaterInstallPopup(bpy.types.Operator):
         ),
         default=False,
         options={"HIDDEN"},
-    )
+    ) # type: ignore
 
     ignore_enum: bpy.props.EnumProperty(
         name="Process update",
@@ -155,7 +155,7 @@ class AddonUpdaterInstallPopup(bpy.types.Operator):
             ("defer", "Defer", "Defer choice till next blender session"),
         ],
         options={"HIDDEN"},
-    )
+    ) # type: ignore
 
     def check(self, context):
         return True
@@ -231,9 +231,9 @@ class AddonUpdaterInstallPopup(bpy.types.Operator):
 
 # User preference check-now operator
 class AddonUpdaterCheckNow(bpy.types.Operator):
-    bl_label = "Check now for " + updater.addon + " update"
+    bl_label = "立即检查更新"
     bl_idname = updater.addon + ".updater_check_now"
-    bl_description = "Check now for an update to the {} addon".format(updater.addon)
+    bl_description = "立即检查可用的 {} 更新".format(updater.addon)
     bl_options = {"REGISTER", "INTERNAL"}
 
     def execute(self, context):
@@ -288,7 +288,7 @@ class AddonUpdaterUpdateNow(bpy.types.Operator):
         ),
         default=False,
         options={"HIDDEN"},
-    )
+    ) # type: ignore
 
     def execute(self, context):
         # in case of error importing updater
@@ -335,7 +335,7 @@ class AddonUpdaterUpdateNow(bpy.types.Operator):
 class AddonUpdaterUpdateTarget(bpy.types.Operator):
     bl_label = updater.addon + " version target"
     bl_idname = updater.addon + ".updater_update_target"
-    bl_description = "Install a targeted version of the {x} addon".format(
+    bl_description = "安装指定版本的 {x} 插件".format(
         x=updater.addon
     )
     bl_options = {"REGISTER", "INTERNAL"}
@@ -356,7 +356,7 @@ class AddonUpdaterUpdateTarget(bpy.types.Operator):
         name="Target version to install",
         description="Select the version to install",
         items=target_version,
-    )
+    ) # type: ignore
 
     # If true, run clean install - ie remove all files before adding new
     # equivalent to deleting the addon and reinstalling, except the
@@ -369,7 +369,7 @@ class AddonUpdaterUpdateTarget(bpy.types.Operator):
         ),
         default=False,
         options={"HIDDEN"},
-    )
+    ) # type: ignore
 
     @classmethod
     def poll(cls, context):
@@ -423,7 +423,7 @@ class AddonUpdaterInstallManually(bpy.types.Operator):
 
     error: bpy.props.StringProperty(
         name="Error Occurred", default="", options={"HIDDEN"}
-    )
+    ) # type: ignore
 
     def invoke(self, context, event):
         return context.window_manager.invoke_popup(self)
@@ -484,7 +484,7 @@ class AddonUpdaterUpdatedSuccessful(bpy.types.Operator):
 
     error: bpy.props.StringProperty(
         name="Error Occurred", default="", options={"HIDDEN"}
-    )
+    ) # type: ignore
 
     def invoke(self, context, event):
         return context.window_manager.invoke_props_popup(self, event)
@@ -554,11 +554,11 @@ class AddonUpdaterUpdatedSuccessful(bpy.types.Operator):
 
 
 class AddonUpdaterRestoreBackup(bpy.types.Operator):
-    """Restore addon from backup"""
+    """从备份恢复插件"""
 
     bl_label = "Restore backup"
     bl_idname = updater.addon + ".updater_restore_backup"
-    bl_description = "Restore addon from backup"
+    bl_description = "从备份恢复插件"
     bl_options = {"REGISTER", "INTERNAL"}
 
     @classmethod
@@ -959,7 +959,7 @@ def update_settings_ui(self, context, element=None):
         return
 
     # auto-update settings
-    box.label(text="Updater Settings")
+    box.label(text="更新器设置")
     row = box.row()
 
     # special case to tell user to restart blender, if set that way
@@ -982,7 +982,7 @@ def update_settings_ui(self, context, element=None):
     if not settings.auto_check_update:
         sub_col.enabled = False
     sub_row = sub_col.row()
-    sub_row.label(text="Interval between checks")
+    sub_row.label(text="检查间隔")
     sub_row = sub_col.row(align=True)
     check_col = sub_row.column(align=True)
     check_col.prop(settings, "updater_interval_months")
@@ -1077,11 +1077,11 @@ def update_settings_ui(self, context, element=None):
             branch = updater.include_branch_list[0]
             col.operator(
                 AddonUpdaterUpdateTarget.bl_idname,
-                text="Install {} / old version".format(branch),
+                text="安装旧版本".format(branch),
             )
         else:
             col.operator(
-                AddonUpdaterUpdateTarget.bl_idname, text="(Re)install addon version"
+                AddonUpdaterUpdateTarget.bl_idname, text="重装指定版本的插件"
             )
         last_date = "none found"
         backup_path = os.path.join(updater.stage_path, "backup")
@@ -1090,7 +1090,7 @@ def update_settings_ui(self, context, element=None):
                 last_date = "Date not found"
             else:
                 last_date = updater.json["backup_date"]
-        backup_text = "Restore addon backup ({})".format(last_date)
+        backup_text = "恢复插件备份 ({})".format(last_date)
         col.operator(AddonUpdaterRestoreBackup.bl_idname, text=backup_text)
 
     row = box.row()
@@ -1100,9 +1100,9 @@ def update_settings_ui(self, context, element=None):
         row.label(text=updater.error_msg)
     elif last_check:
         last_check = last_check[0 : last_check.index(".")]
-        row.label(text="Last update check: " + last_check)
+        row.label(text="上次更新检查: " + last_check)
     else:
-        row.label(text="Last update check: Never")
+        row.label(text="从未进行更新检查")
 
 
 def update_settings_ui_condensed(self, context, element=None):

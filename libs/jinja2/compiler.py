@@ -1147,10 +1147,11 @@ class CodeGenerator(NodeVisitor):
             # executed as part of the f-string.
             position = self.position(node).replace("{", "{{").replace("}", "}}")
             message = (
-                "the template {included_template.__name__!r}"
-                f" (imported on {position})"
-                f" does not export the requested name {name!r}"
+                f"模板 {included_template.__name__!r}"
+                f"（导入位置：{position}）"
+                f"未导出请求的名称 {name!r}"
             )
+
             self.writeline(
                 f"{frame.symbols.ref(alias)} = undefined(f{message!r}, name={name!r})"
             )

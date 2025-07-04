@@ -1337,7 +1337,7 @@ def register():
     updater.user = "leotorrez"
     updater.repo = "XXMITools"
     # updater.addon = # define at top of module, MUST be done first
-    updater.website = "https://github.com/leotorrez/XXMITools/releases"
+    updater.website = "https://github.com/HammyCatte/XXMITools_CN/releases"
     updater.subfolder_path = ""
     updater.current_version = bl_info["version"]
     updater.verbose = True  # make False for production default

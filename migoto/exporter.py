@@ -109,9 +109,9 @@ class ModExporter:
     files_to_copy: dict[Path, Path] = field(init=False)
 
     def __post_init__(self) -> None:
-        print("Initializing data for export...")
+        print("正在初始化导出数据...")
         if self.dump_path == Path(""):
-            raise Fatal("Dump path not set")
+            raise Fatal("导入路径未设置")
         if not self.dump_path.is_dir() or self.dump_path.suffix != "":
             self.dump_path = self.dump_path.parent
 
@@ -121,17 +121,17 @@ class ModExporter:
             self.destination = self.dump_path.parent / f"{self.mod_name}Mod"
             self.operator.report(
                 {"WARNING"},
-                f"Destination path not set, defaulting to {self.destination}",
+                f"未设置导出路径，默认为 {self.destination}",
             )
         if self.destination.is_file():
             self.destination = self.destination.parent
         if self.destination == self.dump_path:
-            raise Fatal("Destination path can't be the same as Dump path")
+            raise Fatal("导出路径不能与导入路径相同")
         self.destination.mkdir(parents=True, exist_ok=True)
 
         self.hash_data = self.load_hashes(self.dump_path / "hash.json")
         if not self.hash_data:
-            raise Fatal("ERROR", "Hash data is empty or invalid!")
+            raise Fatal("ERROR", "hash数据为空或无效！")
 
         scene: Scene = bpy.context.scene
         if not [
@@ -142,7 +142,7 @@ class ModExporter:
             if self.mod_name.lower() in file.name.lower()
         ]:
             raise Fatal(
-                "ERROR: Cannot find match for name. Double check you are exporting as ObjectName.vb to the original data folder, that ObjectName exists in scene and that hash.json exists"
+                "错误：未找到匹配的名称。请确认导入文件夹中的 .vb 文件名是否正确，导出的对象是否存在于场景中，以及 hash.json 文件是否存在。"
             )
         candidate_objs: list[Object] = (
             [obj for obj in bpy.context.selected_objects]
@@ -208,10 +208,10 @@ class ModExporter:
                 ]
                 if component["draw_vb"] != "":
                     if not matching_objs:
-                        raise Fatal(f"Cannot find object {part_name} in the scene.")
+                        raise Fatal(f"场景中未找到名为 {part_name} 的对象。")
                     if len(matching_objs) > 1:
                         raise Fatal(
-                            f"Found multiple objects with the name {part_name}."
+                            f"找到多个名称为 {part_name} 的对象。"
                         )
                     obj: Object = matching_objs[0]
                     collection = [
@@ -221,7 +221,7 @@ class ModExporter:
                     ]
                     if len(collection) > 1:
                         raise Fatal(
-                            f"ERROR: Found multiple collections with the name {part_name}. Ensure only one collection exists with that name."
+                            f"错误: 找到多个同名的集合 {part_name}，请确保仅存在一个具有该名称的集合。"
                         )
                     if len(collection) == 0:
                         self.obj_from_col(obj, None, objects)
@@ -244,7 +244,7 @@ class ModExporter:
         destination: list[SubObj],
         depth: int = 0,
     ) -> None:
-        """Recursively get all objects from a collection and its sub-collections."""
+        """递归获取一个集合及其子集合中的所有对象"""
         depsgraph = bpy.context.evaluated_depsgraph_get()
         if destination == []:
             final_mesh: Mesh = self.process_mesh(main_obj, main_obj, depsgraph)
@@ -270,7 +270,7 @@ class ModExporter:
             self.obj_from_col(main_obj, child, destination, depth + 1)
 
     def process_mesh(self, main_obj: Object, obj: Object, depsgraph: Depsgraph) -> Mesh:
-        """Process the mesh of the object."""
+        """处理对象的网格"""
         # TODO: Add moddifier application for SK'd meshes here
         final_mesh: Mesh = (
             obj.evaluated_get(depsgraph).to_mesh() if self.apply_modifiers else obj.data
@@ -294,7 +294,7 @@ class ModExporter:
         return final_mesh
 
     def generate_buffers(self) -> None:
-        """Generate buffers for the objects."""
+        """为对象生成缓冲区"""
         self.files_to_write = {}
         self.files_to_copy = {}
         for component in self.mod_file.components:
@@ -318,7 +318,7 @@ class ModExporter:
                     excluded_buffers.append(key)
             vb_offset: int = 0
             for part in component.parts:
-                print(f"Processing {part.fullname} " + "-" * 10)
+                print(f"正在处理 {part.fullname} " + "-" * 10)
                 part_ib: NumpyBuffer = NumpyBuffer(
                     layout=data_model.buffers_format["IB"]
                 )
@@ -331,7 +331,7 @@ class ModExporter:
                 if component.draw_vb == "":
                     continue
                 for entry in part.objects:
-                    print(f"Processing {entry.name}...")
+                    print(f"正在处理 {entry.name}...")
                     v_count: int = 0
                     if len(entry.obj.data.polygons) == 0:
                         continue
@@ -364,7 +364,7 @@ class ModExporter:
                     entry.index_offset = ib_offset
                     ib_offset += entry.index_count
                 if len(part_ib) == 0:
-                    print(f"Skipping {part.fullname}.ib due to no index data.")
+                    print(f"跳过 {part.fullname}.ib 文件，缺少索引数据。")
                     continue
                 component_ib.append(part_ib.copy())
                 self.files_to_write[self.destination / (part.fullname + ".ib")] = (
@@ -401,7 +401,7 @@ class ModExporter:
         buffers_format: dict[str, BufferLayout],
         excluded_buffers: list[str],
     ) -> None:
-        """Checks for format requirements in specific layouts"""
+        """检查特定结构的格式要求"""
         semantics_to_check: list[BufferSemantic] = [
             semantic
             for key, buffer_layout in buffers_format.items()
@@ -422,8 +422,8 @@ class ModExporter:
                     self.operator.report(
                         {"WARNING"},
                         (
-                            f"Mesh({obj.name}) requires vertex groups to be posed. "
-                            "Please add vertex groups to the mesh if you intend for it to be rendered. "
+                            f"网格 {obj.name} 需要顶点组来摆姿势。"
+                            "如果您想要渲染网格，请将顶点组添加到网格中。"
                         ),
                     )
                 max_groups: int = sem.format.get_num_values()
@@ -432,9 +432,9 @@ class ModExporter:
                         self.operator.report(
                             {"WARNING"},
                             (
-                                f"Mesh({obj.name}) has some vertex with more VGs than the amount supported by the buffer format ({max_groups}). "
-                                "Please remove the extra groups from the vertex or use to clean up the weights(limit total plus normalization). "
-                                "Alternatively you can enable normalize weights to format(Ignore this warning if you already have it enabled)"
+                                f"网格 {obj.name} 中部分顶点的顶点组数量超过了缓冲区格式支持的最大值 ({max_groups})。 "
+                                "请删除多余的顶点组，或使用权重清理功能（限制总权重并归一化）。"
+                                "另外，也可以开启“归一化权重”功能（如果已开启，请忽略此警告）。"
                             ),
                         )
                         break
@@ -442,13 +442,13 @@ class ModExporter:
         # in the future we might want to make them optional or auto generate them
         if len(missing_uvs) > 0:
             raise Fatal(
-                f"Mesh({obj.name}) is missing the following UV layers: {', '.join(missing_uvs)}. "
-                f"Please add them to the mesh before exporting."
+                f"网格 {obj.name} 中缺少以下 UV 层：{', '.join(missing_uvs)}。 "
+                f"请在导出前将其添加到网格中。"
             )
         if len(missing_colors) > 0:
             raise Fatal(
-                f"Mesh({obj.name}) is missing the following vertex colors: {', '.join(missing_colors)}. "
-                f"Please add them to the mesh before exporting."
+                f"网格（{obj.name}）中缺少以下顶点色：{', '.join(missing_colors)}。"
+                f"请在导出前将其添加到网格中。"
             )
 
     def generate_ini(
@@ -458,7 +458,7 @@ class ModExporter:
         # Extensions handle modifiable paths differently. If we ever move to them we should make modifications in here
         if self.write_ini is False:
             return
-        print("Generating .ini file")
+        print("生成 .ini 文件")
         addon_path: Path = Path(__file__).parent.parent
         templates_paths: list[Path] = [addon_path / "templates"]
         if (
@@ -473,7 +473,7 @@ class ModExporter:
             trim_blocks=True,
             lstrip_blocks=True,
         )
-        print(f"Using template {template_name}")
+        print(f"使用模板 {template_name}")
         ini_file: INI_file = INI_file(
             env.get_template(template_name).render(
                 version=bl_info["version"],
@@ -490,16 +490,16 @@ class ModExporter:
     def optimize_outlines(
         self, output_buffs: dict[str, NumpyBuffer], ib_buf: NumpyBuffer
     ) -> None:
-        """Optimize the outlines of the meshes with angle-weighted normal averaging."""
+        """使用角度加权法线平均来优化网格的轮廓"""
 
         def unit_vector(vector: NDArray) -> NDArray:
-            """Normalize the input vector to unit length."""
+            """将输入向量标准化为单位长度"""
             norm = numpy.linalg.norm(vector, axis=1, keepdims=True)
             norm = numpy.where(norm == 0, 1, norm)
             return vector / norm
 
         def calc_angle(edge_a: NDArray, edge_b: NDArray) -> NDArray:
-            """Calculate the angle between two edges in radians."""
+            """计算两个边之间的角度（以弧度为单位）"""
             vector_a = numpy.abs(unit_vector(edge_a))
             vector_b = numpy.abs(unit_vector(edge_b))
             return numpy.arccos(
@@ -573,7 +573,7 @@ class ModExporter:
                 AbstractSemantic(Semantic.Tangent)
             )
             if tangent_element is None:
-                raise Fatal("Tangent semantic not found in the buffer layout. ")
+                raise Fatal("缓冲区结构中未找到 tangent 属性。")
             pos_buf.import_semantic_data(
                 verts_outline_vector[:, 0:3],
                 tangent_element,
@@ -584,7 +584,7 @@ class ModExporter:
                 AbstractSemantic(Semantic.Color)
             )
             if color_element is None:
-                raise Fatal("Color semantic not found in the position buffer layout. ")
+                raise Fatal("位置缓冲区结构中缺少 color 属性。")
             pos_buf.import_semantic_data(
                 verts_outline_vector[:, 0:3],
                 color_element,
@@ -603,7 +603,7 @@ class ModExporter:
             if texcoord1_element is None:
                 # TODO: might want to force add anyways
                 raise Fatal(
-                    "TEXCOORD1 semantic not found in the texcoord buffer layout."
+                    "纹理坐标缓冲区结构中缺少 TEXCOORD1 属性。"
                 )
             dot_prods: NDArray = numpy.zeros(
                 (len(verts_outline_vector), 2), dtype=numpy.float32
@@ -618,10 +618,10 @@ class ModExporter:
                 texcoord1_element,
                 [texcoord1_element.format.type_encoder],
             )
-        print(f"Optimized outlines in {time.time() - start_time:.4f} seconds")
+        print(f"轮廓优化已完成，耗时 {time.time() - start_time:.4f} 秒。")
 
     def write_files(self) -> None:
-        """Write the files to the destination."""
+        """将文件写入导出路径"""
         self.destination.mkdir(parents=True, exist_ok=True)
         print("Writen files: ")
         try:
@@ -633,7 +633,7 @@ class ModExporter:
                 elif isinstance(content, numpy.ndarray) and self.write_buffers:
                     content.tofile(file_path)
         except (OSError, IOError) as e:
-            raise Fatal(f"Error writing file {file_path}: {e}")
+            raise Fatal(f"写入文件时出错 {file_path}: {e}")
         if not self.copy_textures:
             return
         try:
@@ -645,13 +645,13 @@ class ModExporter:
                     continue
                 shutil.copy(src, dest)
         except (OSError, IOError) as e:
-            raise Fatal(f"Error copying file {src} to {dest}: {e}")
+            raise Fatal(f"复制文件 {src} 到 {dest} 时出错：{e}")
 
     def export(self) -> None:
-        """Export the mod file."""
+        """导出 mod 文件"""
         start: float = time.time()
         if len(self.mod_file.components) == 0:
-            raise Fatal("No components found to export. Aborting export.")
+            raise Fatal("未找到可导出的组件。已中止导出。")
         print(f"Exporting {self.mod_name} to {self.destination}")
         self.generate_buffers()
         self.generate_ini()
@@ -659,17 +659,17 @@ class ModExporter:
         print()
         self.operator.report(
             {"INFO"},
-            f"Exported {self.mod_name} to {self.destination} in {(time.time() - start):2f} seconds",
+            f"已将 {self.mod_name} 导出到 {self.destination}，耗时 {(time.time() - start):.2f} 秒。",
         )
 
     def cleanup(self) -> None:
-        """Cleanup the objects."""
+        """清理物体"""
         pass
 
     def load_hashes(self, path: Path) -> list[dict]:
-        """Load the hash data from the hash.json file."""
+        """从 hash.json 文件加载hash数据"""
         if not path.exists() or not path.is_file():
-            raise Fatal(f"Hash file {path} does not exist or is not a file.")
+            raise Fatal(f"hash文件 {path} 不存在或不是有效文件。")
         with open(path, "r") as f:
             char_hashes = json.load(f)
         # TODO: Check for hash.json integrity

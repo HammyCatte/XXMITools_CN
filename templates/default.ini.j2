@@ -1,14 +1,14 @@
-{%  if game.value ==  "Honkai Impact 3rd" %}
+{%  if game.value ==  "崩坏3" %}
     {% include "Honkai Impact 3rd.ini.j2" %}
-{%  elif game.value == "Genshin Impact" %}
+{%  elif game.value == "原神" %}
     {% include "Genshin Impact.ini.j2" %}
-{%  elif game.value == "Honkai Star Rail" %}
+{%  elif game.value == "星铁" %}
     {% include "Honkai Star Rail.ini.j2" %}
-{%  elif game.value == "Zenless Zone Zero" %}
+{%  elif game.value == "绝区零" %}
     {% include "Zenless Zone Zero.ini.j2" %}
-{%  elif game.value == "Honkai Impact 3rd Part 2" %}
+{%  elif game.value == "崩坏3第二部" %}
     {% include "Honkai Impact 3rd Part 2.ini.j2" %}
 {%  else %}
-    Unsuported game:
+    不支持的游戏：
     {{game.value}}
 {% endif %}

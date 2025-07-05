@@ -1,20 +1,20 @@
 # XXMI Tools
 
-A Blender add-on to import and export mod files for the supported games.
+适用于支持的游戏的 Blender 插件，用于导入和导出 Mod 文件。
 
-## Installation
+## 安装方法
 
-Download the latest release from [releases](https://github.com/leotorrez/XXMI-Tools/releases), in Blender and go to `Edit > Preferences > Add-ons` and click on `Install...` and select the downloaded `.zip` file.
-Make sure it is enabled after installing it. Disable old versions of the plugin and restart blender to ensure the add-on is loaded correctly
+从 [releases](https://github.com/HammyCatte/XXMITools_CN/releases) 下载最新版本的安装包，在 Blender 中依次打开 `编辑 > 偏好设置 > 插件`，点击 `安装...` 并选择刚刚下载的 `.zip` 文件。  
+安装完成后请确保插件已启用。建议禁用旧版本插件，并重启 Blender 以确保插件正确加载。
 
-Done! You can now use XXMI Tools in Blender.
+完成！现在你可以在 Blender 中使用 XXMI Tools 了。
 
-## Development Version
+## 开发版本
 
-To test the development version of this blender plugin you must clone this repository
+如果你想测试该插件的开发版本，可以克隆此仓库：
 
 ```bash
 gh repo clone leotorrez/XXMI-Tools
 ```
 
-Recommended VSCode plugin: <https://marketplace.visualstudio.com/items?itemName=JacquesLucke.blender-development>
+推荐的 VSCode 插件：: <https://marketplace.visualstudio.com/items?itemName=JacquesLucke.blender-development>

@@ -110,6 +110,8 @@ class ModExporter:
 
     def __post_init__(self) -> None:
         print("正在初始化导出数据...")
+        self.__objs_to_cleanup: list[Object] = []
+        self.__depsgraph: Depsgraph = bpy.context.evaluated_depsgraph_get()
         if self.dump_path == Path(""):
             raise Fatal("导入路径未设置")
         if not self.dump_path.is_dir() or self.dump_path.suffix != "":
@@ -245,9 +247,8 @@ class ModExporter:
         depth: int = 0,
     ) -> None:
         """递归获取一个集合及其子集合中的所有对象"""
-        depsgraph = bpy.context.evaluated_depsgraph_get()
         if destination == []:
-            final_mesh: Mesh = self.process_mesh(main_obj, main_obj, depsgraph)
+            final_mesh: Mesh = self.process_mesh(main_obj, main_obj)
             destination.append(SubObj("", depth, main_obj.name, main_obj, final_mesh))
         if collection is None:
             return
@@ -262,18 +263,20 @@ class ModExporter:
             objs = [obj for obj in objs if obj in selected_objs]
         sorted_objs = sorted(objs, key=lambda x: x.name)
         for obj in sorted_objs:
-            final_mesh = self.process_mesh(main_obj, obj, depsgraph)
+            final_mesh = self.process_mesh(main_obj, obj)
             destination.append(
                 SubObj(collection.name, depth, obj.name, obj, final_mesh)
             )
         for child in collection.children:
             self.obj_from_col(main_obj, child, destination, depth + 1)
 
-    def process_mesh(self, main_obj: Object, obj: Object, depsgraph: Depsgraph) -> Mesh:
+    def process_mesh(self, main_obj: Object, obj: Object) -> Mesh:
         """处理对象的网格"""
         # TODO: Add moddifier application for SK'd meshes here
         final_mesh: Mesh = (
-            obj.evaluated_get(depsgraph).to_mesh() if self.apply_modifiers else obj.data
+            obj.evaluated_get(self.__depsgraph).to_mesh()
+            if self.apply_modifiers
+            else obj.to_mesh()
         )
         if main_obj != obj:
             # Matrix world seems to be the summatory of all transforms parents included
@@ -291,6 +294,7 @@ class ModExporter:
             for vg in vert.groups
             if vg.group in masked_vgs
         ]
+        self.__objs_to_cleanup.append(obj)
         return final_mesh
 
     def generate_buffers(self) -> None:
@@ -573,23 +577,35 @@ class ModExporter:
                 AbstractSemantic(Semantic.Tangent)
             )
             if tangent_element is None:
-                raise Fatal("缓冲区结构中未找到 tangent 属性。")
-            pos_buf.import_semantic_data(
-                verts_outline_vector[:, 0:3],
-                tangent_element,
-                [tangent_element.format.type_encoder],
-            )
+                self.operator.report(
+                    {"WARNING"},
+                    "缓冲区结构中未找到 tangent 属性，已跳过轮廓优化。",
+                )
+            else:
+                pos_buf.import_semantic_data(
+                    verts_outline_vector[:, 0:3],
+                    tangent_element,
+                    [tangent_element.format.type_encoder],
+                )
         elif self.game == GameEnum.HonkaiImpactPart2:
             color_element: BufferSemantic | None = pos_buf.layout.get_element(
                 AbstractSemantic(Semantic.Color)
             )
             if color_element is None:
-                raise Fatal("位置缓冲区结构中缺少 color 属性。")
-            pos_buf.import_semantic_data(
-                verts_outline_vector[:, 0:3],
-                color_element,
-                [color_element.format.type_encoder],
-            )
+                self.operator.report(
+                    {"WARNING"},
+                    "位置缓冲区结构中缺少 color 属性，已跳过轮廓优化。",
+                )
+            else:
+                copy = pos_buf.data["COLOR"].copy()
+                filled_outline = numpy.zeros_like(copy)
+                filled_outline[:, 0:3] = verts_outline_vector[:, 0:3]
+                pos_buf.import_semantic_data(
+                    filled_outline,
+                    color_element,
+                    [color_element.format.type_encoder],
+                )
+                pos_buf.data["COLOR"][:, 3] = copy[:, 3]
         elif self.game == GameEnum.ZenlessZoneZero:
             norm: NDArray = numpy.empty_like(verts_outline_vector)
             norm[ib_data] = loops_face_normal
@@ -602,50 +618,62 @@ class ModExporter:
             )
             if texcoord1_element is None:
                 # TODO: might want to force add anyways
-                raise Fatal(
-                    "纹理坐标缓冲区结构中缺少 TEXCOORD1 属性。"
+                self.operator.report(
+                    {"WARNING"},
+                    "纹理坐标缓冲区结构中缺少 TEXCOORD1 属性，已跳过轮廓优化。",
                 )
-            dot_prods: NDArray = numpy.zeros(
-                (len(verts_outline_vector), 2), dtype=numpy.float32
-            )
-            dot_prods[:, 0] = numpy.einsum("ij,ij->i", tan, verts_outline_vector)
-            dot_prods[:, 1] = numpy.einsum("ij,ij->i", bitan, verts_outline_vector) + 1
-            # TODO: prolly gotta flip again based on custom props
-            dot_prods[:, 1] *= -1.0
-            dot_prods[:, 1] += 1.0
-            tex_buf.import_semantic_data(
-                dot_prods,
-                texcoord1_element,
-                [texcoord1_element.format.type_encoder],
-            )
+            else:
+                dot_prods: NDArray = numpy.zeros(
+                    (len(verts_outline_vector), 2), dtype=numpy.float32
+                )
+                dot_prods[:, 0] = numpy.einsum("ij,ij->i", tan, verts_outline_vector)
+                dot_prods[:, 1] = (
+                    numpy.einsum("ij,ij->i", bitan, verts_outline_vector) + 1
+                )
+                # TODO: prolly gotta flip again based on custom props
+                dot_prods[:, 1] *= -1.0
+                dot_prods[:, 1] += 1.0
+                tex_buf.import_semantic_data(
+                    dot_prods,
+                    texcoord1_element,
+                    [texcoord1_element.format.type_encoder],
+                )
         print(f"轮廓优化已完成，耗时 {time.time() - start_time:.4f} 秒。")
 
     def write_files(self) -> None:
         """将文件写入导出路径"""
         self.destination.mkdir(parents=True, exist_ok=True)
         print("Writen files: ")
-        try:
-            for file_path, content in self.files_to_write.items():
+        for file_path, content in self.files_to_write.items():
+            try:
                 print(f" - {file_path.name}")
                 if isinstance(content, str) and self.write_ini:
                     with open(file_path, "w", encoding="utf-8") as file:
                         file.write(content)
                 elif isinstance(content, numpy.ndarray) and self.write_buffers:
                     content.tofile(file_path)
-        except (OSError, IOError) as e:
-            raise Fatal(f"写入文件时出错 {file_path}: {e}")
+            except (OSError, IOError) as e:
+                raise Fatal(f"写入文件时出错 {file_path}: {e}")
         if not self.copy_textures:
             return
-        try:
-            for src, dest in self.files_to_copy.items():
+        for src, dest in self.files_to_copy.items():
+            try:
                 print(f" - {dest.name}")
                 if not dest.exists():
                     dest.parent.mkdir(parents=True, exist_ok=True)
                 if dest.exists():
                     continue
                 shutil.copy(src, dest)
-        except (OSError, IOError) as e:
-            raise Fatal(f"复制文件 {src} 到 {dest} 时出错：{e}")
+            except (OSError, IOError) as e:
+                raise Fatal(f"复制文件 {src} 到 {dest} 时出错：{e}")
+
+    def cleanup(self) -> None:
+        """Cleanup after the exporter."""
+        for obj in self.__objs_to_cleanup:
+            obj.to_mesh_clear()
+            if not isinstance(obj.data, Mesh):
+                continue
+            obj.data.update()
 
     def export(self) -> None:
         """导出 mod 文件"""
@@ -656,15 +684,12 @@ class ModExporter:
         self.generate_buffers()
         self.generate_ini()
         self.write_files()
+        self.cleanup()
         print()
         self.operator.report(
             {"INFO"},
             f"已将 {self.mod_name} 导出到 {self.destination}，耗时 {(time.time() - start):.2f} 秒。",
         )
-
-    def cleanup(self) -> None:
-        """清理物体"""
-        pass
 
     def load_hashes(self, path: Path) -> list[dict]:
         """从 hash.json 文件加载hash数据"""
